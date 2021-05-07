@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Teacher's Pet</title>
+    <link rel="stylesheet" type="text/css" href="./styles.css">
+</head>
+
+<body id="body">
+
+    <!-- Title section -->
+    <!-- OLD: <div id="pageTitle">Teacher's Pet</div> --->
+    <img id="pageTitle" src="./images/title.png">
+    </div>
+    <br>
+
+    <!-- main section -->
+    <div class="sectionTitle">How many ideas would you like?</div>
+    <form>
+        <input type="number" class="mainPageFormIdeaNumber" id="ideaSize" name="ideaSize" placeholder="25" min="1"
+            step="1" pattern="[0-9]">
+        <br><br>
+    </form>
+
+    <div class="sectionTitle">Enter Wikipedia URL:</div>
+    <form>
+        <input type="text" class="mainPageFormWikiURL" id="wikiURL" name="wikiURL"
+            placeholder="https://en.wikipedia.org/wiki/Peanut_butter">
+        <br><br>
+    </form>
+    <button id="goButton"></button>
+    <!-- not yet implementing: <div id=mainPageBox></div> -->
+
+
+    <!-- Javascript files in use: -->
+    <script type="text/javascript " src="./main.js"></script>
+</body>
+
+</html>
