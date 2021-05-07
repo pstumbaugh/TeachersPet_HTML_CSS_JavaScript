@@ -1,0 +1,193 @@
+* {
+    box-sizing: border-box;
+  }
+  body {
+    font-size: 14px;
+  }
+  .v1_2 {
+    width: 100%;
+    height: 1024px;
+    background: rgba(255,255,255,1);
+    opacity: 1;
+    position: relative;
+    top: 0px;
+    left: 0px;
+    overflow: hidden;
+  }
+  .v1_50 {
+    width: 718px;
+    color: rgba(131,234,141,0.800000011920929);
+    position: absolute;
+    top: 284px;
+    left: 371px;
+    font-family: Londrina Solid;
+    font-weight: Regular;
+    font-size: 48px;
+    opacity: 1;
+    text-align: center;
+  }
+  .v1_57 {
+    width: 575px;
+    color: linear-gradient(rgba(131,234,141,1), rgba(131,234,141,1));
+    position: absolute;
+    top: 467px;
+    left: 433px;
+    font-family: Londrina Solid;
+    font-weight: Regular;
+    font-size: 48px;
+    opacity: 1;
+    text-align: center;
+  }
+  .v1_91 {
+    width: 365px;
+    color: linear-gradient(rgba(131,234,141,1), rgba(131,234,141,1));
+    position: absolute;
+    top: 634px;
+    left: 538px;
+    font-family: Londrina Solid;
+    font-weight: Regular;
+    font-size: 48px;
+    opacity: 1;
+    text-align: center;
+  }
+  .v1_126 {
+    width: 246px;
+    height: 150px;
+    background: rgba(196,196,196,0.17000000178813934);
+    opacity: 1;
+    position: absolute;
+    top: 829px;
+    left: 423px;
+    border: 1px solid rgba(0,0,0,1);
+    overflow: hidden;
+  }
+  .v1_100 {
+    width: 222px;
+    color: linear-gradient(rgba(131,234,141,1), rgba(131,234,141,1));
+    position: absolute;
+    top: 831px;
+    left: 410px;
+    font-family: Londrina Solid;
+    font-weight: Regular;
+    font-size: 36px;
+    opacity: 1;
+    text-align: center;
+  }
+  .v1_101 {
+    width: 201px;
+    color: linear-gradient(rgba(131,234,141,1), rgba(131,234,141,1));
+    position: absolute;
+    top: 871px;
+    left: 400px;
+    font-family: Londrina Shadow;
+    font-weight: Regular;
+    font-size: 30px;
+    opacity: 1;
+    text-align: center;
+  }
+  .v1_87 {
+    width: 117px;
+    height: 84px;
+    background: rgba(0,0,0,0.20000000298023224);
+    opacity: 1;
+    position: absolute;
+    top: 537px;
+    left: 662px;
+    border: 1px solid rgba(0,0,0,1);
+    overflow: hidden;
+  }
+  .v1_82 {
+    width: 65px;
+    color: linear-gradient(rgba(131,234,141,1), rgba(131,234,141,1));
+    position: absolute;
+    top: 541px;
+    left: 688px;
+    font-family: Londrina Solid;
+    font-weight: Regular;
+    font-size: 64px;
+    opacity: 0.20000000298023224;
+    text-align: center;
+  }
+  .v1_92 {
+    width: 100%;
+    height: 80px;
+    background: rgba(0,0,0,0.20000000298023224);
+    opacity: 1;
+    position: absolute;
+    top: 707px;
+    left: 175px;
+    border: 1px solid rgba(0,0,0,1);
+    overflow: hidden;
+  }
+  .v1_93 {
+    width: 630px;
+    color: linear-gradient(rgba(131,234,141,1), rgba(131,234,141,1));
+    position: absolute;
+    top: 725px;
+    left: 405px;
+    font-family: Londrina Solid;
+    font-weight: Regular;
+    font-size: 36px;
+    opacity: 0.20000000298023224;
+    text-align: center;
+  }
+  .v1_79 {
+    width: 213px;
+    height: 213px;
+    background: rgba(131,234,141,1);
+    opacity: 0.20000000298023224;
+    position: absolute;
+    top: 796px;
+    left: 612px;
+    border-radius: 50%;
+  }
+  .v1_99 {
+    width: 135px;
+    height: 135px;
+    background: rgba(131,234,141,1);
+    opacity: 0.5;
+    position: absolute;
+    top: 835px;
+    left: 653px;
+    border-radius: 50%;
+  }
+  .v1_80 {
+    width: 171px;
+    color: linear-gradient(rgba(131,234,141,1), rgba(131,234,141,1));
+    position: absolute;
+    top: 818px;
+    left: 633px;
+    font-family: Londrina Solid;
+    font-weight: Regular;
+    font-size: 144px;
+    opacity: 1;
+    text-align: center;
+  }
+  .v1_48 {
+    width: 757px;
+    color: rgba(0,0,0,1);
+    position: absolute;
+    top: 128px;
+    left: 351px;
+    font-family: Londrina Sketch;
+    font-weight: Regular;
+    font-size: 144px;
+    opacity: 1;
+    text-align: left;
+  }
+  .v1_3 {
+    width: 757px;
+    color: rgba(0,0,0,1);
+    position: absolute;
+    top: 130px;
+    left: 351px;
+    font-family: Londrina Sketch;
+    font-weight: Regular;
+    font-size: 144px;
+    opacity: 1;
+    text-align: left;
+  }
+  .name {
+    color: #fff;
+  }
+  
