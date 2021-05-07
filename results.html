@@ -16,16 +16,18 @@
     <br>
 
     <!-- main section -->
-    <div id="resultsContainer">
-
-        <div id="resultsLinksTitle" onload="getResultsTitle()"></div>
-
-        <div id="resultsWordsTitle" onload="getWordsTitle()"></div>
-
-
-
-    </div>
-
+    <table id="resultsContainer">
+        <th id="resultsLeft">
+            <span class="resultsTitle" id="resultsLinksTitle" onload="getResultsTitle()"></span>
+            <div class="resultsTableBox" id="resultsLinksBox">links results here (scrollable box)</div>
+            <br>
+            <div class="resultsTitle" id="resultsWordsTitle" onload="getWordsTitle()"></div>
+            <div class="resultsTableBox" id="resultsWordsBox">top words results here (scrollable box)</div>
+        </th>
+        <th id="resultsRight">
+            <div>Picture of item here</div>
+        </th>
+    </table>
 
     <!-- buttons on bottom -->
     <div id='startOverContainer'>
@@ -35,7 +37,7 @@
 
 
     <!-- Javascript files in use: -->
-    <script type="text/javascript " src="./main.js"></script>
+    <script type="text/javascript " src="./results.js"></script>
 </body>
 
 </html>

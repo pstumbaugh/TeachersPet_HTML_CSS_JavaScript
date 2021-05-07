@@ -1,5 +1,3 @@
-
-
 getResultsTitle(); //run the function when page loads
 function getResultsTitle() {
     var resultsLinksTitle = ["WOW! Now those are some neat results:", "Ooooh, links!",
@@ -19,3 +17,16 @@ function getWordsTitle() {
     resultsLinksVar.textContent =
         resultsLinksTitle[Math.floor(Math.random() * resultsLinksTitle.length)];
 }
+
+
+var startOverButton = document.getElementById("startOverButton");
+
+function startOverButtonClick() {
+    console.log("TEST")
+    var url = "./index.html";
+    window.location.replace(url);
+    console.log("Go button clicked")
+}
+document.addEventListener("DOMContentLoaded", function () {
+    startOverButton.addEventListener("click", startOverButtonClick);
+});

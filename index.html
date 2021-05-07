@@ -19,22 +19,31 @@
     <div class="sectionTitle">How many ideas would you like?</div>
     <form>
         <input type="number" class="mainPageFormIdeaNumber" id="ideaSize" name="ideaSize" placeholder="25" min="1"
-            step="1" pattern="[0-9]">
+            step="1" pattern="[0-9]"></input>
+        <br>
+        <span class="errorText" id="ideaSizeError"></span>
         <br><br>
     </form>
 
     <div class="sectionTitle">Enter Wikipedia URL:</div>
     <form>
         <input type="text" class="mainPageFormWikiURL" id="wikiURL" name="wikiURL"
-            placeholder="https://en.wikipedia.org/wiki/Peanut_butter">
+            placeholder="https://en.wikipedia.org/wiki/Peanut_butter"></input>
+        <br>
+        <span class="errorText" id="wikiURLerror"></span>
         <br><br>
     </form>
+
+    <!-- buttons on bottom -->
     <button id="goButton"></button>
+    <br>
+    <br>
+
     <!-- not yet implementing: <div id=mainPageBox></div> -->
 
 
     <!-- Javascript files in use: -->
-    <script type="text/javascript " src="./main.js"></script>
+    <script type="text/javascript " src="./index.js"></script>
 </body>
 
 </html>
