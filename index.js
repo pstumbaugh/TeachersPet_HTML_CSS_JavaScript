@@ -50,8 +50,21 @@ function goButtonClick() {
     event.preventDefault();
 }
 
+function enterKeyCheck(ID) {
+    //if user wants to hit the enter key while on the amount input field to submit:
+    var wikiButtonClick = document.getElementById(ID);
+    wikiButtonClick.addEventListener("keypress", function (event) {
+        if (event.keyCode === 13) // Number 13 is the "Enter" key on the keyboard
+        {
+            goButtonClick();
+            event.preventDefault();
+        }
+    });
+}
 
 
 document.addEventListener("DOMContentLoaded", function () {
     goButton.addEventListener("click", goButtonClick);
+    wikiURL.addEventListener("keyup", enterKeyCheck("wikiURL"));
+    numberOfResults.addEventListener("keyup", enterKeyCheck("ideaSize"));
 });

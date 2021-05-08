@@ -6,6 +6,7 @@
   background-image: url("./images/bubbles.png");
   background-size:cover;
   background-repeat: no-repeat;
+  min-width: 400px;
 }
 
 .errorText{
