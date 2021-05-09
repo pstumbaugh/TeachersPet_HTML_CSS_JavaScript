@@ -36,18 +36,17 @@ function makeThumbnail() {
                 console.log(" [x] Received %s", msg.content.toString());
 
                 var url = msg.content.toString()
-                path = "./urlImage.jpg"
+                path = "./urlImage.png"
 
                 saveImageToDisk(url, path)
 
-
-
-            }, {
-                noAck: true
             });
+
+        }, {
+            noAck: true
         });
     });
-}
+};
 
 
 //Node.js Function to save image from External URL.
@@ -56,17 +55,21 @@ function saveImageToDisk(url, localPath) {
     var file = fs.createWriteStream(localPath);
     var request = https.get(url, function (response) {
         response.pipe(file);
+        file.on('close', () =>
+            sharp('./urlImage.png')
+                .resize(200, 200)
+                .toBuffer()
+                .then(data => {
+                    fs.writeFileSync('urlThumbnail.jpg', data);
+                    console.log("thumbnail created successfully!");
+                })
+                .catch(err => {
+                    console.log(err);
+                })
+        );
+
     });
-    sharp('./urlImage.jpg')
-        .resize(200, 200)
-        .toBuffer()
-        .then(data => {
-            fs.writeFileSync('urlThumbnail.jpg', data);
-            console.log("thumbnail created successfully!");
-        })
-        .catch(err => {
-            console.log(err);
-        });
+
 }
 
 
