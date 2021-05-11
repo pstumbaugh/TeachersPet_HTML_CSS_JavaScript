@@ -19,10 +19,10 @@ function makeThumbnail() {
                 throw error1;
             }
 
-            var queue = "thumbnailSend";
+            var queue = "sendToThumbnailServiceQueue";
 
             channel.assertQueue(queue, {
-                durable: false,
+                durable: true,
             });
 
             console.log(
@@ -78,13 +78,13 @@ function sendThumbnailToQueue() {
             if (error1) {
                 throw error1;
             }
-            var queue = "thumbnailReturn";
+            var queue = "getFromThumbnailQueue";
 
             fs.readFile("./urlThumbnail.jpg", function (err, data) {
                 if (err) throw err; // Fail if the file can't be read.
 
                 channel.assertQueue(queue, {
-                    durable: false,
+                    durable: true,
                 });
                 channel.sendToQueue(queue, Buffer.from(data));
 

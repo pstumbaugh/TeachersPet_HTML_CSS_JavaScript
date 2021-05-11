@@ -1,8 +1,8 @@
-var fs = require('fs');
-var amqp = require('amqplib/callback_api');
-const request = require('request')
+var fs = require("fs");
+var amqp = require("amqplib/callback_api");
+const request = require("request");
 
-var credentials = require('./credentials.js');
+var credentials = require("./credentials.js");
 
 getThumbnail();
 
@@ -16,23 +16,25 @@ function getThumbnail() {
                 throw error1;
             }
 
-            var queue = 'thumbnailReturn';
+            var queue = "getFromThumbnailQueue";
 
             channel.assertQueue(queue, {
-                durable: false
+                durable: true,
             });
 
-            channel.consume(queue, function (msg) {
-                console.log(" [x] Received image");
-                fs.writeFileSync('NewUrlThumbnail.jpg', msg.content);
-            }, {
-                noAck: true
-            })
+            channel.consume(
+                queue,
+                function (msg) {
+                    console.log(" [x] Received image");
+                    fs.writeFileSync("NewUrlThumbnail.jpg", msg.content);
+                },
+                {
+                    noAck: true,
+                }
+            );
         });
-
     });
-};
-
+}
 
 /*
         setTimeout(function () {
