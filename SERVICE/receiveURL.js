@@ -3,6 +3,9 @@ var fs = require("fs");
 var sharp = require("sharp");
 var amqp = require("amqplib/callback_api");
 var https = require("https");
+const fetch = require("node-fetch");
+
+var request = require("request");
 
 var credentials = require("./credentials.js");
 
@@ -31,7 +34,7 @@ function makeThumbnail() {
 
             channel.consume(
                 queue,
-                function (msg) {
+                async function (msg) {
                     console.log(" [x] Received %s", msg.content.toString());
 
                     //get our image
@@ -62,7 +65,7 @@ function makeThumbnail() {
                         );
                         saveImageGeneric(imageToProcess, localPath);
                     }
-                 
+
                     localPath = "";
                     imageToProcess = "";
                 },
@@ -79,21 +82,21 @@ function saveImageFromURL(url, localPath) {
     var file = fs.createWriteStream(localPath, { flags: "w" });
     var request = https.get(url, function (response) {
         response.pipe(file);
-        file.on("close", () =>
-            sharp(localPath)
-                .resize(200, 200) //thumbnail size
-                .toBuffer()
-                .then((data) => {
-                    fs.writeFileSync("thumbnail.jpg", data);
-                    console.log("URL - thumbnail created successfully!");
-                    sendThumbnailToQueue(); //send it to the queue
-                })
-                //error handle:
-                .catch((err) => {
-                    console.log(err);
-                })
-        );
     });
+    file.on("close", () =>
+        sharp(localPath)
+            .resize(200, 200) //thumbnail size
+            .toBuffer()
+            .then((data) => {
+                fs.writeFileSync("thumbnail.jpg", data);
+                console.log("URL - thumbnail created successfully!");
+                sendThumbnailToQueue(); //send it to the queue
+            })
+            //error handle:
+            .catch((err) => {
+                console.log(err);
+            })
+    );
 }
 
 //saves an "acceptable file format" for local images and sends it to queue
@@ -148,3 +151,12 @@ function sendThumbnailToQueue() {
         });
     });
 }
+
+var download = function (uri, filename, callback) {
+    request.head(uri, function (err, res, body) {
+        console.log("content-type:", res.headers["content-type"]);
+        console.log("content-length:", res.headers["content-length"]);
+
+        request(uri).pipe(fs.createWriteStream(filename)).on("close", callback);
+    });
+};

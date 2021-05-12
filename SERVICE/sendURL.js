@@ -14,8 +14,10 @@ amqp.connect(credentials.AMPQserver, function (error0, connection) {
         }
 
         var queue = "sendToThumbnailServiceQueue";
-        //var msg = "https://web-city-pages.s3.amazonaws.com/or/portland/images/760x760.jpg?v=1566263946516";
-        var msg = "https://cdn.mos.cms.futurecdn.net/VSy6kJDNq2pSXsCzb6cvYF.jpg";
+        var msg =
+            "https://web-city-pages.s3.amazonaws.com/or/portland/images/760x760.jpg?v=1566263946516";
+        //var msg =
+        ("https://cdn.mos.cms.futurecdn.net/VSy6kJDNq2pSXsCzb6cvYF.jpg");
         //var msg = "./bear";
 
         channel.assertQueue(queue, {
