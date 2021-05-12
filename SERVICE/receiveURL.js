@@ -76,7 +76,7 @@ function makeThumbnail() {
 //saves an image from a URL and sends it to queue
 function saveImageFromURL(url, localPath) {
     //open a new fs write stream
-    var file = fs.createWriteStream(localPath);
+    var file = fs.createWriteStream(localPath, { flags: "w" });
     //pipe the file into response
     //on close, resize the image and send it to the queue
     var request = https.get(url, function (response) {
