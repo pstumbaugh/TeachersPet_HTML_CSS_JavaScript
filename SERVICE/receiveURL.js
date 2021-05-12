@@ -36,7 +36,7 @@ function makeThumbnail() {
 
                     //get our image
                     var imageToProcess = msg.content.toString();
-                    localPath = "./urlImage.png"; //where we are going to temporarily save the image
+                    localPath = "./urlImage.jpg"; //where we are going to temporarily save the image
 
                     //find out the type of image and route it to the correct transformer service
                     if (imageToProcess.includes("http") == true) {
@@ -62,6 +62,7 @@ function makeThumbnail() {
                         );
                         saveImageGeneric(imageToProcess, localPath);
                     }
+                 
                     localPath = "";
                     imageToProcess = "";
                 },
@@ -75,10 +76,7 @@ function makeThumbnail() {
 
 //saves an image from a URL and sends it to queue
 function saveImageFromURL(url, localPath) {
-    //open a new fs write stream
     var file = fs.createWriteStream(localPath, { flags: "w" });
-    //pipe the file into response
-    //on close, resize the image and send it to the queue
     var request = https.get(url, function (response) {
         response.pipe(file);
         file.on("close", () =>
