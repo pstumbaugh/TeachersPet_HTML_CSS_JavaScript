@@ -123,7 +123,7 @@ function saveImageGeneric(url, localPath) {
         });
 }
 
-//takes the saved local thumbnail image ("urlThumbnail.jpg") and sends it to the rabbitmq queue
+//takes the saved local thumbnail image ("thumbnail.jpg") and sends it to the rabbitmq queue
 function sendThumbnailToQueue() {
     //connect to server
     amqp.connect(credentials.AMPQserver, function (error0, newConnection) {
