@@ -3,9 +3,8 @@ var fs = require("fs");
 var sharp = require("sharp");
 var amqp = require("amqplib/callback_api");
 var https = require("https");
-const fetch = require("node-fetch");
-
-var request = require("request");
+const request = require("request");
+const download = require("image-downloader");
 
 var credentials = require("./credentials.js");
 
@@ -34,7 +33,7 @@ function makeThumbnail() {
 
             channel.consume(
                 queue,
-                async function (msg) {
+                function (msg) {
                     console.log(" [x] Received %s", msg.content.toString());
 
                     //get our image
@@ -43,8 +42,8 @@ function makeThumbnail() {
 
                     //find out the type of image and route it to the correct transformer service
                     if (imageToProcess.includes("http") == true) {
-                        console.log(" # Image is a URL");
-                        saveImageFromURL(imageToProcess, localPath);
+                        console.log(" [-] Image is a URL");
+                        saveImageFromURL(imageToProcess);
                     } else if (
                         //if the image is one of the acceptable sharp format files:
                         imageToProcess.includes(".jpg") == true ||
@@ -56,18 +55,15 @@ function makeThumbnail() {
                         imageToProcess.includes(".gif") == true ||
                         imageToProcess.includes(".svg") == true
                     ) {
-                        console.log(" # Image is an acceptable picture file");
-                        saveImageAcceptablePic(imageToProcess, localPath);
+                        console.log(" [-] Image is an acceptable picture file");
+                        saveImageAcceptablePic(imageToProcess);
                     } else {
                         //not a url or acceptable format, sending back a generic
                         console.log(
-                            " # Image is not able to process, sending generic thumbnail"
+                            " [-] Image is not able to process, sending generic thumbnail"
                         );
-                        saveImageGeneric(imageToProcess, localPath);
+                        saveImageGeneric();
                     }
-
-                    localPath = "";
-                    imageToProcess = "";
                 },
                 {
                     noAck: true,
@@ -78,47 +74,61 @@ function makeThumbnail() {
 }
 
 //saves an image from a URL and sends it to queue
-function saveImageFromURL(url, localPath) {
-    var file = fs.createWriteStream(localPath, { flags: "w" });
-    var request = https.get(url, function (response) {
-        response.pipe(file);
-    });
-    file.on("close", () =>
-        sharp(localPath)
-            .resize(200, 200) //thumbnail size
-            .toBuffer()
-            .then((data) => {
-                fs.writeFileSync("thumbnail.jpg", data);
-                console.log("URL - thumbnail created successfully!");
-                sendThumbnailToQueue(); //send it to the queue
-            })
-            //error handle:
-            .catch((err) => {
-                console.log(err);
-            })
-    );
+function saveImageFromURL(url) {
+    sharp.cache(false); //clear our sharp if there are any other images already in the cache
+
+    const options = {
+        url: url,
+        dest: "thumbnail.jpg", //where it will be saved at
+    };
+
+    download
+        .image(options)
+        .then(({ filename }) => {
+            console.log(" [-] Saved URL to ", filename); // saving file
+        })
+        .finally(function () {
+            //create the thumbnail from the same file
+            sharp("thumbnail.jpg")
+                .resize(200, 200) //thumbnail size
+                .toBuffer()
+                .then((data) => {
+                    var stream = fs.createWriteStream("thumbnail.jpg");
+                    stream.once("open", function (fd) {
+                        stream.write(data);
+                        stream.end();
+                    });
+                    console.log(" [-] URL - thumbnail created successfully!");
+                    sendThumbnailToQueue(); //send it to the queue
+                })
+                //error handle:
+                .catch((err) => {
+                    console.log(err);
+                });
+        })
+        .catch((err) => console.error(err));
 }
 
 //saves an "acceptable file format" for local images and sends it to queue
-function saveImageAcceptablePic(imageToProcess, localPath) {
+function saveImageAcceptablePic(imageToProcess) {
     sharp(imageToProcess)
         .resize(200, 200) //thumbnail size
         .toBuffer()
         .then((data) => {
             fs.writeFileSync("thumbnail.jpg", data);
-            console.log("Accp Image - thumbnail created successfully!");
+            console.log(" [-] Accp Image - thumbnail created successfully!");
             sendThumbnailToQueue(); //send it to the queue
         });
 }
 
 //saves a generic image and sends it to the rabbitMQ queue.
-function saveImageGeneric(url, localPath) {
+function saveImageGeneric() {
     sharp("./generic.jpg")
         .resize(200, 200) //thumbnail size
         .toBuffer()
         .then((data) => {
             fs.writeFileSync("thumbnail.jpg", data);
-            console.log("!! GENERIC !! thumbnail created successfully!");
+            console.log(" [-] GENERIC thumbnail created successfully!");
             //send it to the queue
             sendThumbnailToQueue();
         });
@@ -145,18 +155,37 @@ function sendThumbnailToQueue() {
                     durable: true,
                 });
                 channel.sendToQueue(queue, Buffer.from(data)); //send it to queue
-                console.log(' [x] Sent image to "thumbnailReturn" queue');
+                console.log(" [-] Sent image to %s", queue);
+                //repeat waiting log (it will still be in the main consume function)
+                console.log(
+                    " [*] Waiting for more messages. To exit press CTRL+C"
+                );
                 return;
             });
         });
     });
 }
 
-var download = function (uri, filename, callback) {
-    request.head(uri, function (err, res, body) {
-        console.log("content-type:", res.headers["content-type"]);
-        console.log("content-length:", res.headers["content-length"]);
-
-        request(uri).pipe(fs.createWriteStream(filename)).on("close", callback);
+/* OLD IMPLEMENTATION
+//saves an image from a URL and sends it to queue
+function saveImageFromURL(url, localPath) {
+    var file = fs.createWriteStream(localPath, { flags: "w" });
+    var request = https.get(url, function (response) {
+        response.pipe(file);
     });
-};
+    file.on("close", () =>
+        sharp(localPath)
+            .resize(200, 200) //thumbnail size
+            .toBuffer()
+            .then((data) => {
+                fs.writeFileSync("thumbnail.jpg", data);
+                console.log("URL - thumbnail created successfully!");
+                sendThumbnailToQueue(); //send it to the queue
+            })
+            //error handle:
+            .catch((err) => {
+                console.log(err);
+            })
+    );
+}
+*/
