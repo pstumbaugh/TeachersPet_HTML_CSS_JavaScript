@@ -14,13 +14,13 @@ amqp.connect(credentials.AMPQserver, function (error0, connection) {
         }
 
         var queue = "PatQueue";
-        //var msg =
-        ("https://web-city-pages.s3.amazonaws.com/or/portland/images/760x760.jpg?v=1566263946516");
+        var msg =
+            "https://web-city-pages.s3.amazonaws.com/or/portland/images/760x760.jpg?v=1566263946516";
         //var msg =
         ("https://cdn.mos.cms.futurecdn.net/VSy6kJDNq2pSXsCzb6cvYF.jpg");
         //var msg = "./bear.jpg";
-        var msg =
-            "this is a junk test message, do not process! Get back a generic thumbnail";
+        //var msg =
+        ("this is a junk test message, do not process! Get back a generic thumbnail");
 
         channel.assertQueue(queue, {
             durable: true,

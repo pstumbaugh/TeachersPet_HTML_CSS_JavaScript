@@ -1,0 +1,25 @@
+Thumbnail transformer service:
+
+HOW THE SERVICE WORKS:
+1. Once started, the service is always watching "PatQueue" for new messages
+2. Once a message is received from that queue, it is processed (transformed into a thumbnail, if possible)
+    *- If the message is a URL or acceptable picture type, the message will be transformed to a thumbnail
+    *- If the message is not transformable via the service, a generic (leopard picture) will be used in it's place
+3. The new thumbnail will then be sent to the "thumbnailTransformer" exchange for pickup by a consumer.
+4. If you are the consumer as well (which is expeted in most cases), assert the "thumbnailTransformer" exchange and consume messages from there (in your own queue if needed)
+    *- see example of consuming from the exchange in the file named "receiveTest.js" (see below for startup instructions)
+
+    
+STARTING THE SERVICE (and the test sending and receiving services too!):
+(Service will eventually be running forever on a flip server, but until then, feel free to follow the below instructions to test)
+1. Navigate into "SERVICE" folder
+2. run the thumbnail transofrmation service by entering in console: "node service.js"
+    *- you may need to install node modules if needed
+    *- The service will continue running until manually stopped. Please hit CTRL+C to stop service 
+To Test the service, I have two js files to use:
+1. In the same "SERVICE" folder, enter on console: "node sendToQueue"
+    *- This will send a message to the queue "PatQueue", which the service above is looking at for incoming messsages
+    *- There are multiple other messages commented out. Please feel free to test with the other messages 
+2. In the same "SERVICE" folder, enter on console: "node receiveTest.js"
+    *- This will consume message from the service (where the messages have been sent to the exchange).
+    *- When a message is received, you'll see it save your files as "NewUrlThumbnail.jpg"
