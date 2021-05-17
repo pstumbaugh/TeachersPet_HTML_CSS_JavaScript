@@ -1,6 +1,10 @@
 Thumbnail transformer service:
+This service takes in an incoming image (URL or image type) as a message (through the "PatQueue" queue) through RabbitMQ. 
+    It then transforms it into a thumbnail size (200x200) and sends the new image (saved as "thumbnail.jpg") as a message 
+    back through RabbitMQ (in the "thumbnailTransformer" exchange). 
 
 HOW THE SERVICE WORKS:
+(service is in the "SERVICE" folder in this repo)
 1. Once started, the service is always watching "PatQueue" for new messages
 2. Once a message is received from that queue, it is processed (transformed into a thumbnail, if possible)
     *- If the message is a URL or acceptable picture type, the message will be transformed to a thumbnail
@@ -8,6 +12,7 @@ HOW THE SERVICE WORKS:
 3. The new thumbnail will then be sent to the "thumbnailTransformer" exchange for pickup by a consumer.
 4. If you are the consumer as well (which is expeted in most cases), assert the "thumbnailTransformer" exchange and consume messages from there (in your own queue if needed)
     *- see example of consuming from the exchange in the file named "receiveTest.js" (see below for startup instructions)
+
 
     
 STARTING THE SERVICE (and the test sending and receiving services too!):
