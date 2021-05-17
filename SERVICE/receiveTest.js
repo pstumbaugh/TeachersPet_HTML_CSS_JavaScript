@@ -15,30 +15,45 @@ function getThumbnail() {
             if (error1) {
                 throw error1;
             }
+            var exchange = "thumbnailTransformer";
 
-            var queue = "getFromThumbnailQueue";
-
-            channel.assertQueue(queue, {
-                durable: true,
+            channel.assertExchange(exchange, "fanout", {
+                durable: false,
             });
 
-            channel.consume(
-                queue,
-                function (msg) {
-                    console.log(" [x] Received image");
-                    fs.writeFileSync("NewUrlThumbnail.jpg", msg.content);
-                },
+            channel.assertQueue(
+                "",
                 {
-                    noAck: true,
+                    exclusive: true,
+                },
+                function (error2, q) {
+                    if (error2) {
+                        throw error2;
+                    }
+                    console.log(
+                        " [*] Waiting for messages in %s. To exit press CTRL+C",
+                        q.queue
+                    );
+                    console.log("QUEUE: ", q.queue);
+                    console.log("EXCHANGE: ", exchange);
+
+                    channel.bindQueue(q.queue, exchange, "");
+
+                    channel.consume(
+                        q.queue,
+                        function (msg) {
+                            console.log(" [x] Received image");
+                            fs.writeFileSync(
+                                "NewUrlThumbnail.jpg",
+                                msg.content
+                            );
+                        },
+                        {
+                            noAck: true,
+                        }
+                    );
                 }
             );
         });
     });
 }
-
-/*
-        setTimeout(function () {
-        connection.close();
-        process.exit(0);
-    }, 500);
-    */

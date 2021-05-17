@@ -20,55 +20,96 @@ function makeThumbnail() {
                 throw error1;
             }
 
-            var queue = "sendToThumbnailServiceQueue";
+            var queue = "PatQueue";
 
-            channel.assertQueue(queue, {
-                durable: true,
-            });
-
-            console.log(
-                " [*] Waiting for messages in %s. To exit press CTRL+C",
-                queue
-            );
-
-            channel.consume(
+            channel.assertQueue(
                 queue,
-                function (msg) {
-                    console.log(" [x] Received %s", msg.content.toString());
-
-                    //get our image
-                    var imageToProcess = msg.content.toString();
-                    localPath = "./urlImage.jpg"; //where we are going to temporarily save the image
-
-                    //find out the type of image and route it to the correct transformer service
-                    if (imageToProcess.includes("http") == true) {
-                        console.log(" [-] Image is a URL");
-                        saveImageFromURL(imageToProcess);
-                    } else if (
-                        //if the image is one of the acceptable sharp format files:
-                        imageToProcess.includes(".jpg") == true ||
-                        imageToProcess.includes(".jpeg") == true ||
-                        imageToProcess.includes(".png") == true ||
-                        imageToProcess.includes(".webp") == true ||
-                        imageToProcess.includes(".avif") == true ||
-                        imageToProcess.includes(".tiff") == true ||
-                        imageToProcess.includes(".gif") == true ||
-                        imageToProcess.includes(".svg") == true
-                    ) {
-                        console.log(" [-] Image is an acceptable picture file");
-                        saveImageAcceptablePic(imageToProcess);
-                    } else {
-                        //not a url or acceptable format, sending back a generic
-                        console.log(
-                            " [-] Image is not able to process, sending generic thumbnail"
-                        );
-                        saveImageGeneric();
-                    }
-                },
                 {
-                    noAck: true,
+                    exclusive: false,
+                },
+                function (error2, q) {
+                    if (error2) {
+                        throw error2;
+                    }
+                    console.log(
+                        " [*] Waiting for messages in %s. To exit press CTRL+C",
+                        q.queue
+                    );
+
+                    channel.consume(
+                        q.queue,
+                        function (msg) {
+                            transformToThumbnail(msg);
+                        },
+                        {
+                            noAck: true,
+                        }
+                    );
                 }
             );
+        });
+    });
+}
+
+function transformToThumbnail(msg) {
+    //get our image
+    var imageToProcess = msg.content.toString();
+    localPath = "./urlImage.jpg"; //where we are going to temporarily save the image
+
+    //find out the type of image and route it to the correct transformer service
+    if (imageToProcess.includes("http") == true) {
+        console.log(" [-] Image is a URL");
+        saveImageFromURL(imageToProcess);
+    } else if (
+        //if the image is one of the acceptable sharp format files:
+        imageToProcess.includes(".jpg") == true ||
+        imageToProcess.includes(".jpeg") == true ||
+        imageToProcess.includes(".png") == true ||
+        imageToProcess.includes(".webp") == true ||
+        imageToProcess.includes(".avif") == true ||
+        imageToProcess.includes(".tiff") == true ||
+        imageToProcess.includes(".gif") == true ||
+        imageToProcess.includes(".svg") == true
+    ) {
+        console.log(" [-] Image is an acceptable picture file");
+        saveImageAcceptablePic(imageToProcess);
+    } else {
+        //not a url or acceptable format, sending back a generic
+        console.log(
+            " [-] Image is not able to process, sending generic thumbnail"
+        );
+        saveImageGeneric();
+    }
+    return;
+}
+
+function sendThumbnailToExchange() {
+    amqp.connect(credentials.AMPQserver, function (error0, connection) {
+        if (error0) {
+            throw error0;
+        }
+        connection.createChannel(function (error1, channel) {
+            if (error1) {
+                throw error1;
+            }
+            var exchange = "thumbnailTransformer";
+
+            fs.readFile("./thumbnail.jpg", function (err, data) {
+                if (err) throw err; // Fail if the file can't be read.
+
+                channel.assertExchange(exchange, "fanout", {
+                    durable: false,
+                });
+
+                channel.publish(exchange, "", Buffer.from(data));
+                console.log(" [x] Sent to exchange ", exchange);
+
+                //repeat waiting log (it will still be in the main consume function)
+                console.log(
+                    " [*] Waiting for more messages. To exit press CTRL+C"
+                );
+                return;
+            });
         });
     });
 }
@@ -99,7 +140,7 @@ function saveImageFromURL(url) {
                         stream.end();
                     });
                     console.log(" [-] URL - thumbnail created successfully!");
-                    sendThumbnailToQueue(); //send it to the queue
+                    sendThumbnailToExchange(); //send it to the exchange
                 })
                 //error handle:
                 .catch((err) => {
@@ -117,7 +158,7 @@ function saveImageAcceptablePic(imageToProcess) {
         .then((data) => {
             fs.writeFileSync("thumbnail.jpg", data);
             console.log(" [-] Accp Image - thumbnail created successfully!");
-            sendThumbnailToQueue(); //send it to the queue
+            sendThumbnailToExchange(); //send it to the queue
         });
 }
 
@@ -130,7 +171,7 @@ function saveImageGeneric() {
             fs.writeFileSync("thumbnail.jpg", data);
             console.log(" [-] GENERIC thumbnail created successfully!");
             //send it to the queue
-            sendThumbnailToQueue();
+            sendThumbnailToExchange();
         });
 }
 
@@ -165,27 +206,3 @@ function sendThumbnailToQueue() {
         });
     });
 }
-
-/* OLD IMPLEMENTATION
-//saves an image from a URL and sends it to queue
-function saveImageFromURL(url, localPath) {
-    var file = fs.createWriteStream(localPath, { flags: "w" });
-    var request = https.get(url, function (response) {
-        response.pipe(file);
-    });
-    file.on("close", () =>
-        sharp(localPath)
-            .resize(200, 200) //thumbnail size
-            .toBuffer()
-            .then((data) => {
-                fs.writeFileSync("thumbnail.jpg", data);
-                console.log("URL - thumbnail created successfully!");
-                sendThumbnailToQueue(); //send it to the queue
-            })
-            //error handle:
-            .catch((err) => {
-                console.log(err);
-            })
-    );
-}
-*/
