@@ -28,9 +28,13 @@ amqp.connect(credentials.AMPQserver, function (error0, connection) {
         });
 
         channel.sendToQueue(queue, Buffer.from(msg));
-        channel.sendToQueue(queue, Buffer.from(msg1));
-
         console.log(" [x] Sent %s", msg);
+        channel.sendToQueue(queue, Buffer.from(msg1));
+        console.log(" [x] Sent %s", msg1);
+        channel.sendToQueue(queue, Buffer.from(msg2));
+        console.log(" [x] Sent %s", msg1);
+        channel.sendToQueue(queue, Buffer.from(msg3));
+        console.log(" [x] Sent %s", msg1);
     });
     setTimeout(function () {
         connection.close();

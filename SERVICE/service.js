@@ -38,13 +38,11 @@ function makeThumbnail() {
                     console.log(" [x] Received %s", msg.content.toString());
                     setTimeout(function () {
                         transformToThumbnail(msg);
-                        console.log(" [x] Done");
+                        //console.log(" [x] Done");
                         channel.ack(msg);
-                    }, 5000);
+                    }, 2000);
                 },
                 {
-                    // manual acknowledgment mode,
-                    // see https://www.rabbitmq.com/confirms.html for details
                     noAck: false,
                 }
             );
