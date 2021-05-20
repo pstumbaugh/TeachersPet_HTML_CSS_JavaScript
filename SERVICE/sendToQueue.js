@@ -13,7 +13,8 @@ amqp.connect(credentials.AMPQserver, function (error0, connection) {
             throw error1;
         }
 
-        var queue = "PatQueue";
+        //var queue = "PatQueue";
+        var queue = "PatQueueTEST";
 
         var msg =
             "https://web-city-pages.s3.amazonaws.com/or/portland/images/760x760.jpg?v=1566263946516";
@@ -29,12 +30,14 @@ amqp.connect(credentials.AMPQserver, function (error0, connection) {
 
         channel.sendToQueue(queue, Buffer.from(msg));
         console.log(" [x] Sent %s", msg);
+        /*
         channel.sendToQueue(queue, Buffer.from(msg1));
         console.log(" [x] Sent %s", msg1);
         channel.sendToQueue(queue, Buffer.from(msg2));
         console.log(" [x] Sent %s", msg1);
         channel.sendToQueue(queue, Buffer.from(msg3));
         console.log(" [x] Sent %s", msg1);
+        */
     });
     setTimeout(function () {
         connection.close();
