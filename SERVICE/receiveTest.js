@@ -15,7 +15,8 @@ function getThumbnail() {
             if (error1) {
                 throw error1;
             }
-            var exchange = "thumbnailTransformer";
+            //var exchange = "thumbnailTransformer";
+            var exchange = "thumbnailTransformer1";
 
             channel.assertExchange(exchange, "fanout", {
                 durable: false,
@@ -39,14 +40,17 @@ function getThumbnail() {
 
                     channel.bindQueue(q.queue, exchange, "");
 
+                    counter = 0;
+
                     channel.consume(
                         q.queue,
                         function (msg) {
                             console.log(" [x] Received image");
                             fs.writeFileSync(
-                                "NewUrlThumbnail.jpg",
+                                "NewUrlThumbnail" + counter + ".jpg",
                                 msg.content
                             );
+                            counter = counter + 1;
                         },
                         {
                             noAck: true,

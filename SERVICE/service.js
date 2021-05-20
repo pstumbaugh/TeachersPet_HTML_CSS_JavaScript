@@ -22,29 +22,30 @@ function makeThumbnail() {
 
             var queue = "PatQueue";
 
-            channel.assertQueue(
+            channel.assertQueue(queue, {
+                durable: true,
+            });
+            channel.prefetch(1);
+            console.log(
+                " [*] Waiting for messages in %s. To exit press CTRL+C",
+                queue
+            );
+            channel.consume(
                 queue,
-                {
-                    exclusive: false,
-                },
-                function (error2, q) {
-                    if (error2) {
-                        throw error2;
-                    }
-                    console.log(
-                        " [*] Waiting for messages in %s. To exit press CTRL+C",
-                        q.queue
-                    );
+                function (msg) {
+                    //var secs = msg.content.toString().split(".").length - 1;
 
-                    channel.consume(
-                        q.queue,
-                        function (msg) {
-                            transformToThumbnail(msg);
-                        },
-                        {
-                            noAck: true,
-                        }
-                    );
+                    console.log(" [x] Received %s", msg.content.toString());
+                    setTimeout(function () {
+                        transformToThumbnail(msg);
+                        console.log(" [x] Done");
+                        channel.ack(msg);
+                    }, 5000);
+                },
+                {
+                    // manual acknowledgment mode,
+                    // see https://www.rabbitmq.com/confirms.html for details
+                    noAck: false,
                 }
             );
         });
@@ -92,7 +93,8 @@ function sendThumbnailToExchange() {
             if (error1) {
                 throw error1;
             }
-            var exchange = "thumbnailTransformer";
+            //var exchange = "thumbnailTransformer";
+            var exchange = "thumbnailTransformer1";
 
             fs.readFile("./thumbnail.jpg", function (err, data) {
                 if (err) throw err; // Fail if the file can't be read.
@@ -137,10 +139,12 @@ function saveImageFromURL(url) {
                     var stream = fs.createWriteStream("thumbnail.jpg");
                     stream.once("open", function (fd) {
                         stream.write(data);
+                        console.log(
+                            " [-] URL - thumbnail created successfully!"
+                        );
+                        sendThumbnailToExchange(); //send it to the exchange
                         stream.end();
                     });
-                    console.log(" [-] URL - thumbnail created successfully!");
-                    sendThumbnailToExchange(); //send it to the exchange
                 })
                 //error handle:
                 .catch((err) => {
