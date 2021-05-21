@@ -1,10 +1,14 @@
+import rp from "request-promise";
+import $ from "cheerio";
+
 var goButton = document.getElementById("goButton");
 var testButton = document.getElementById("testButton");
 var numberOfResults = document.getElementById("ideaSize");
 var wikiURL = document.getElementById("wikiURL");
 
 function testButtonClick() {
-    console.log("HELLO!");
+    //imageAPI("Maryland");
+    testSearch();
 }
 
 function goButtonClick() {
@@ -64,6 +68,56 @@ function enterKeyCheck(ID) {
             event.preventDefault();
         }
     });
+}
+
+function testSearch() {
+    const url =
+        "https://en.wikipedia.org/wiki/List_of_Presidents_of_the_United_States";
+
+    rp(url)
+        .then(function (html) {
+            //success!
+            const wikiUrls = [];
+            for (let i = 0; i < 45; i++) {
+                wikiUrls.push($("big > a", html)[i].attribs.href);
+            }
+            console.log(wikiUrls);
+        })
+        .catch(function (err) {
+            //handle error
+        });
+}
+
+function imageAPI(search) {
+    var url = "https://en.wikipedia.org/w/api.php";
+    var params = {
+        action: "query",
+        prop: "imageinfo",
+        generator: "images",
+        iiprop: "url",
+        titles: search,
+        format: "json",
+    };
+
+    url = url + "?origin=*&gimlimit=max";
+    Object.keys(params).forEach(function (key) {
+        url += "&" + key + "=" + params[key];
+    });
+
+    fetch(url)
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (response) {
+            for (var page in response.query.pages) {
+                for (var info in response.query.pages[page].imageinfo) {
+                    console.log(response.query.pages[page].imageinfo[info].url);
+                }
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
 }
 
 document.addEventListener("DOMContentLoaded", function () {
