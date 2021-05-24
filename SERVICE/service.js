@@ -91,8 +91,8 @@ function sendThumbnailToExchange() {
             if (error1) {
                 throw error1;
             }
-            //var exchange = "thumbnailTransformer";
-            var exchange = "thumbnailTransformer1";
+            var exchange = "thumbnailTransformer";
+            //var exchange = "thumbnailTransformer1";
 
             fs.readFile("./thumbnail.jpg", function (err, data) {
                 if (err) throw err; // Fail if the file can't be read.

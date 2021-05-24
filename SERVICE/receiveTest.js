@@ -2,7 +2,6 @@ var fs = require("fs");
 var amqp = require("amqplib/callback_api");
 const request = require("request");
 
-var counter = require("./counter.js");
 var credentials = require("./credentials.js");
 
 getThumbnail();
@@ -16,8 +15,8 @@ function getThumbnail() {
             if (error1) {
                 throw error1;
             }
-            var exchange = "thumbnailTransformer";
-            //var exchange = "thumbnailTransformer1";
+            //var exchange = "thumbnailTransformer";
+            var exchange = "thumbnailTransformer1";
 
             channel.assertExchange(exchange, "fanout", {
                 durable: false,
