@@ -55,7 +55,7 @@ function getThumbnail() {
                         function (msg) {
                             console.log(" [x] Received image");
                             fs.writeFileSync(
-                                "NewUrlThumbnail" + counter + ".jpg",
+                                "NewUrlThumbnail" + counter,
                                 msg.content
                             );
                             counter = counter + 1;

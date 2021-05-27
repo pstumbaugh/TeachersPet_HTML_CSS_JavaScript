@@ -7,7 +7,9 @@
     "fetch": "^1.1.0",
     "node-fetch": "^2.6.1",
     "node-wiki": "*",
+    "pika": "0.0.1-security",
     "request-promise": "^4.2.6",
-    "urllib": "^2.37.1"
+    "urllib": "^2.37.1",
+    "wikipedia": "^1.1.1"
   }
 }
