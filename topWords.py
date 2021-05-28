@@ -57,9 +57,9 @@ stopwords += ["yours", "yourself", "yourselves", "===", "==", "=", ".", ","]
 
 
 def get_top_words(page_name, num_words, incl_links):
+    print(page_name)
     pg = wikipedia.page(page_name)
     print(pg)
-    print("--------END---------")
     content = pg.content.lower().translate(str.maketrans("", "", string.punctuation))
     all_words = content.lower().split()
     if incl_links == True:
