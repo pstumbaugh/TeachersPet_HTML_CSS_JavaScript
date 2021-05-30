@@ -8,7 +8,6 @@ var path = require("path");
 const { parse } = require("path");
 var imgJson;
 
-//port to use (8875 - Testing // 8877 - Live website)
 var port = 7788;
 
 var app = express();
@@ -33,6 +32,35 @@ app.get("/", async function (req, res) {
     res.render("home", context);
 });
 
+app.get("/topWords", async function (req, res) {
+    var context = {};
+    var currSearchItem = req.query.searchItem;
+    var currSearchSize = req.query.searchSize;
+
+    var results;
+    var spawn = require("child_process").spawn;
+    var process = spawn("python", [
+        "./topWords.py",
+        currSearchItem,
+        currSearchSize,
+        "False",
+    ]);
+
+    process.stdout.on("data", function (data) {
+        //console.log(data.toString());
+        results = data.toString();
+        setTimeout(function () {
+            // ---------------DO WHAT YOU WITH HERE:
+            context.stringResults = JSON.stringify(results);
+            context.parsedResults = JSON.parse(context.stringResults);
+            context.arrayResults = context.parsedResults.split("\n");
+            console.log("TOP WORDS RESULTS: ", context.arrayResults);
+            res.send(context);
+        }, 500);
+    });
+});
+
+/*
 //home page setup
 //Get and display (send back) all the items from the SQL table
 app.get("/test", async function (req, res) {
@@ -42,7 +70,7 @@ app.get("/test", async function (req, res) {
     var results;
     var spawn = require("child_process").spawn;
     if (testSearchItem == true) {
-        var process = spawn("python", ["./wikipediaFerratPlus.py", searchItem]);
+        var process = spawn("python", ["./topWords.py", searchItem]);
         process.stdout.on("data", function (data) {
             //console.log(data.toString());
             results = data.toString();
@@ -57,6 +85,7 @@ app.get("/test", async function (req, res) {
         res.render("home", context);
     }
 });
+*/
 
 /*
 //home page setup
@@ -83,12 +112,15 @@ app.get("/results", function (req, res) {
 });
 */
 
+/*
 app.get("/results", function (req, res) {
     var context = {};
     sendTo();
     //getThumbnail();
 });
+*/
 
+/*
 function sendTo() {
     var amqp = require("amqplib/callback_api");
     var credentials = require("./credentials.js");
@@ -126,7 +158,9 @@ function sendTo() {
         }, 500);
     });
 }
+*/
 
+/*
 var fs = require("fs");
 var amqp = require("amqplib/callback_api");
 //getThumbnail();
@@ -186,6 +220,7 @@ function getThumbnail() {
         });
     });
 }
+*/
 
 /*
 function imageAPI(search) {

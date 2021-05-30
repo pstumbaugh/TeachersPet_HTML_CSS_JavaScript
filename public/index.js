@@ -1,57 +1,114 @@
 var goButton = document.getElementById("goButton");
 var numberOfResults = document.getElementById("ideaSize");
-var wikiURL = document.getElementById("wikiURL");
+var wikiSearchTermFromHTML = document.getElementById("wikiTermEntry");
 
-function goButtonClick() {
-    var numberOfResultsValue = numberOfResults.value;
-    var wikiURLValue = wikiURL.value;
-
-    //error flags
-    wikiFlag = true;
-    ideasFlag = true;
-
+function checkForErrorsInNumResults(numberOfResultsValue, htmlItem) {
     //check number of ideas entered correctly
     if (numberOfResultsValue <= 0) {
-        document.getElementById("ideaSizeError").textContent =
+        document.getElementById(htmlItem).textContent =
             "Please enter a positive number";
         ideasFlag = true;
         event.preventDefault();
     } else if (numberOfResultsValue == "") {
-        document.getElementById("ideaSizeError").textContent =
-            "Please enter a number";
+        document.getElementById(htmlItem).textContent = "Please enter a number";
         ideasFlag = true;
         event.preventDefault();
     } else {
-        document.getElementById("ideaSizeError").style.visibility = "hidden";
+        document.getElementById(htmlItem).style.visibility = "hidden";
         ideasFlag = false;
         event.preventDefault();
     }
+}
 
+function checkForErrorsInWikiSearchItem(wikiSearchTerm, searchItem) {
     //check wiki URL validity
-    if (wikiURLValue == "") {
-        document.getElementById("wikiURLerror").textContent =
+    if (wikiSearchTerm == "") {
+        document.getElementById(searchItem).textContent =
             "Please enter a keyword";
         wikiFlag = true;
         event.preventDefault();
     } else {
-        document.getElementById("wikiURLerror").style.visibility = "hidden";
+        document.getElementById(searchItem).style.visibility = "hidden";
         wikiFlag = false;
         event.preventDefault();
     }
+}
+
+function goButtonClick() {
+    var numberOfResultsValue = numberOfResults.value;
+    var wikiSearchTerm = wikiSearchTermFromHTML.value;
+    //error flags
+    wikiFlag = true;
+    ideasFlag = true;
+
+    checkForErrorsInNumResults(numberOfResultsValue, "ideaSizeError");
+    checkForErrorsInWikiSearchItem(wikiSearchTerm, "wikiTermEntryError");
+
     event.preventDefault();
 
     //make sure no error flags set, if good continue on. (else do nothing)
     if (ideasFlag == false && wikiFlag == false) {
+        //set the redirect option (precise results)
+        var redirectOption;
+        if (document.getElementById("redirectOption").checked == true)
+            redirectOption = "redirect";
+        else redirectOption = "!redirect";
+
+        //fade out the main page
         fadeItemOut("main");
         console.log("Go button clicked");
-        linkshere(wikiURLValue, numberOfResultsValue);
-        //imageAPI(wikiURLValue);
-
-        //wait for main page to fade out
-        var delayInMilliseconds1 = 1000;
+        var delayInMilliseconds2 = 500;
         setTimeout(function () {
-            fadeItemIn("results");
-        }, delayInMilliseconds1);
+            document.getElementById("loader").style.opacity = "1";
+        }, delayInMilliseconds2);
+
+        //get our results loaded
+        //start with top words since it is a .get request, top words:
+        $.get("http://flip1.engr.oregonstate.edu:7788/topWords", {
+            searchItem: wikiSearchTerm,
+            searchSize: numberOfResultsValue,
+        })
+            .fail(function (data) {
+                alert(
+                    "We're experiencing issues right now, please try again later."
+                );
+                fadeItemIn("main");
+                console.log("ERROR in get request");
+            })
+            .done(function (data) {
+                var size = data.arrayResults.length - 2; //because results add two blank lines at end
+                for (var p in data.arrayResults) {
+                    if (p < size) {
+                        var table = document.getElementById("resultsWordsBox");
+                        //create a new "a" and add the title and link
+                        var type = document.createElement("a");
+                        var child = document.createTextNode(
+                            data.arrayResults[p]
+                        );
+                        type.appendChild(child);
+                        table.appendChild(type);
+                        //add a line break in after each word
+                        linebreak = document.createElement("br");
+                        table.appendChild(linebreak);
+                    }
+                }
+
+                //finish loading our results
+                //common links:
+                linkshere(wikiSearchTerm, numberOfResultsValue, redirectOption);
+                //get the main image:
+                imageAPI(wikiSearchTerm);
+
+                //fade in results page after main has faded out
+                var delayInMilliseconds1 = 1000;
+                setTimeout(function () {
+                    fadeItemIn("results");
+                    var delayInMilliseconds3 = 2000;
+                    setTimeout(function () {
+                        document.getElementById("loader").style.opacity = "0";
+                    }, delayInMilliseconds3);
+                }, delayInMilliseconds1);
+            });
     }
     event.preventDefault();
 }
@@ -81,8 +138,8 @@ function getResultsTitle() {
     ];
     var resultsLinksVar = document.getElementById("resultsLinksTitle");
 
-    resultsLinksVar.textContent =
-        resultsLinksTitle[Math.floor(Math.random() * resultsLinksTitle.length)];
+    var position = Math.floor(Math.random() * resultsLinksTitle.length);
+    resultsLinksVar.textContent = resultsLinksTitle[position];
 }
 
 getWordsTitle(); //run the function when page loads
@@ -96,17 +153,25 @@ function getWordsTitle() {
     ];
     var resultsLinksVar = document.getElementById("resultsWordsTitle");
 
-    resultsLinksVar.textContent =
-        resultsLinksTitle[Math.floor(Math.random() * resultsLinksTitle.length)];
+    var position = Math.floor(Math.random() * resultsLinksTitle.length);
+    resultsLinksVar.textContent = resultsLinksTitle[position];
 }
 
 var startOverButton = document.getElementById("startOverButton");
 
 function startOverButtonClick() {
+    numberOfResults.value = "";
+    wikiSearchTermFromHTML.value = "";
     fadeItemOut("results");
     var delayInMilliseconds1 = 1000;
     setTimeout(function () {
+        document.getElementById("ideaSizeError").style.visibility = "visible";
+        document.getElementById("wikiTermEntryError").style.visibility =
+            "visible";
         fadeItemIn("main");
+        //clear out results boxes:
+        document.getElementById("resultsLinksBox").innerHTML = "";
+        document.getElementById("resultsWordsBox").innerHTML = "";
     }, delayInMilliseconds1);
     console.log("Start Over button clicked");
 }
@@ -159,15 +224,19 @@ function linksAPI(search, ideaNumber) {
 }
 
 //gets common links shared between search term and links on that page
-function linkshere(search, ideaNumber) {
+function linkshere(search, ideaNumber, redirectOption) {
     var table = document.getElementById("resultsLinksBox");
     var url = "https://en.wikipedia.org/w/api.php";
+    var whitespace = checkForSpaces(search);
+    if (whitespace == true) redirectOption = "!redirect";
 
     var params = {
         action: "query",
         titles: search,
         prop: "linkshere",
         format: "json",
+        lhlimit: ideaNumber,
+        lhshow: redirectOption,
     };
 
     url = url + "?origin=*";
@@ -180,6 +249,7 @@ function linkshere(search, ideaNumber) {
             return response.json();
         })
         .then(function (response) {
+            console.log(response);
             var pages = response.query.pages;
             var pageID = Object.keys(pages);
             var links = pages[pageID].linkshere;
@@ -196,9 +266,63 @@ function linkshere(search, ideaNumber) {
                 type.target = "_blank";
                 table.appendChild(type);
 
-                //replace spaces with underscore
                 linebreak = document.createElement("br");
                 table.appendChild(linebreak);
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+}
+
+function topWordsAPI(wikiSearchTerm, numberOfResultsValue) {
+    $.get("http://flip1.engr.oregonstate.edu:7788/topWords", {
+        searchItem: wikiSearchTerm,
+        searchSize: numberOfResultsValue,
+    }).done(function (data) {
+        var size = data.arrayResults.length - 2; //because results add two blank lines at end
+        for (var p in data.arrayResults) {
+            if (p < size) {
+                var table = document.getElementById("resultsWordsBox");
+                //create a new "a" and add the title and link
+                var type = document.createElement("a");
+                var child = document.createTextNode(data.arrayResults[p]);
+                type.appendChild(child);
+                table.appendChild(type);
+                //add a line break in after each word
+                linebreak = document.createElement("br");
+                table.appendChild(linebreak);
+            }
+        }
+    });
+}
+
+// Function to get image URLs from a given Wikipedia page
+function imageAPI(search, res) {
+    var url = "https://en.wikipedia.org/w/api.php";
+    var params = {
+        action: "query",
+        prop: "imageinfo",
+        generator: "images",
+        iiprop: "url",
+        titles: search,
+        format: "json",
+    };
+
+    url = url + "?origin=*&gimlimit=max";
+    Object.keys(params).forEach(function (key) {
+        url += "&" + key + "=" + params[key];
+    });
+
+    fetch(url)
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (response) {
+            for (var page in response.query.pages) {
+                for (var info in response.query.pages[page].imageinfo) {
+                    console.log(response.query.pages[page].imageinfo[info].url);
+                }
             }
         })
         .catch(function (error) {
@@ -226,9 +350,16 @@ function removeSpaces(originalText) {
     return removedSpacesText;
 }
 
+function checkForSpaces(value) {
+    return value.indexOf(" ") >= 0;
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     goButton.addEventListener("click", goButtonClick);
-    wikiURL.addEventListener("keyup", enterKeyCheck("wikiURL"));
+    wikiSearchTermFromHTML.addEventListener(
+        "keyup",
+        enterKeyCheck("wikiTermEntry")
+    );
     numberOfResults.addEventListener("keyup", enterKeyCheck("ideaSize"));
     startOverButton.addEventListener("click", startOverButtonClick);
 });
