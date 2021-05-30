@@ -15,8 +15,8 @@ function getThumbnail() {
             if (error1) {
                 throw error1;
             }
-            //var exchange = "thumbnailTransformer";
-            var exchange = "thumbnailTransformer1";
+            var exchange = "thumbnailTransformer";
+            //var exchange = "thumbnailTransformer1";
 
             channel.assertExchange(exchange, "fanout", {
                 durable: false,
@@ -50,6 +50,7 @@ function getThumbnail() {
                                 "NewUrlThumbnail" + counter + ".jpg",
                                 msg.content
                             );
+                            channel.close;
                             counter = counter + 1;
                         },
                         {
