@@ -1,15 +1,6 @@
-import rp from "request-promise";
-import $ from "cheerio";
-
 var goButton = document.getElementById("goButton");
-var testButton = document.getElementById("testButton");
 var numberOfResults = document.getElementById("ideaSize");
 var wikiURL = document.getElementById("wikiURL");
-
-function testButtonClick() {
-    //imageAPI("Maryland");
-    testSearch();
-}
 
 function goButtonClick() {
     var numberOfResultsValue = numberOfResults.value;
@@ -37,9 +28,9 @@ function goButtonClick() {
     }
 
     //check wiki URL validity
-    if (wikiURLValue == "" || wikiURLValue.includes("wikipedia.org") == false) {
+    if (wikiURLValue == "") {
         document.getElementById("wikiURLerror").textContent =
-            "Please enter a wikipedia URL";
+            "Please enter a keyword";
         wikiFlag = true;
         event.preventDefault();
     } else {
@@ -51,9 +42,16 @@ function goButtonClick() {
 
     //make sure no error flags set, if good continue on. (else do nothing)
     if (ideasFlag == false && wikiFlag == false) {
-        var url = "./results.html";
-        window.location.replace(url);
+        fadeItemOut("main");
         console.log("Go button clicked");
+        linksAPI(wikiURLValue, numberOfResultsValue);
+        //imageAPI(wikiURLValue);
+
+        //wait for main page to fade out
+        var delayInMilliseconds1 = 1000;
+        setTimeout(function () {
+            fadeItemIn("results");
+        }, delayInMilliseconds1);
     }
     event.preventDefault();
 }
@@ -70,36 +68,67 @@ function enterKeyCheck(ID) {
     });
 }
 
-function testSearch() {
-    const url =
-        "https://en.wikipedia.org/wiki/List_of_Presidents_of_the_United_States";
+//-------------------RESULTS FUNCTIONS------------------------
 
-    rp(url)
-        .then(function (html) {
-            //success!
-            const wikiUrls = [];
-            for (let i = 0; i < 45; i++) {
-                wikiUrls.push($("big > a", html)[i].attribs.href);
-            }
-            console.log(wikiUrls);
-        })
-        .catch(function (err) {
-            //handle error
-        });
+getResultsTitle(); //run the function when page loads
+function getResultsTitle() {
+    var resultsLinksTitle = [
+        "WOW! Now those are some neat results:",
+        "Ooooh, links!",
+        "Your students will love these topics:",
+        "Enjoy these fabulous results!",
+        "You get a link, and you get link! Everone gets a link!",
+    ];
+    var resultsLinksVar = document.getElementById("resultsLinksTitle");
+
+    resultsLinksVar.textContent =
+        resultsLinksTitle[Math.floor(Math.random() * resultsLinksTitle.length)];
 }
 
-function imageAPI(search) {
+getWordsTitle(); //run the function when page loads
+function getWordsTitle() {
+    var resultsLinksTitle = [
+        "So ... many ... words!",
+        "Enjoy this curated list of words!",
+        "So many words, so little time...",
+        "Word: a single distinct meaninful element.",
+        "Those are some popular words!",
+    ];
+    var resultsLinksVar = document.getElementById("resultsWordsTitle");
+
+    resultsLinksVar.textContent =
+        resultsLinksTitle[Math.floor(Math.random() * resultsLinksTitle.length)];
+}
+
+var startOverButton = document.getElementById("startOverButton");
+
+function startOverButtonClick() {
+    fadeItemOut("results");
+    var delayInMilliseconds1 = 1000;
+    setTimeout(function () {
+        fadeItemIn("main");
+    }, delayInMilliseconds1);
+    console.log("Start Over button clicked");
+}
+
+function linksAPI(search, ideaNumber) {
+    var table = document.getElementById("resultsLinksBox");
     var url = "https://en.wikipedia.org/w/api.php";
+
     var params = {
+        inprop: "url",
         action: "query",
-        prop: "imageinfo",
-        generator: "images",
-        iiprop: "url",
-        titles: search,
         format: "json",
+        titles: search,
+        prop: "info",
+        pllimit: "max",
+        gpllimit: ideaNumber,
+        generator: "links",
+        list: "random",
+        plnamespace: "linkshere",
     };
 
-    url = url + "?origin=*&gimlimit=max";
+    url = url + "?origin=*";
     Object.keys(params).forEach(function (key) {
         url += "&" + key + "=" + params[key];
     });
@@ -109,10 +138,12 @@ function imageAPI(search) {
             return response.json();
         })
         .then(function (response) {
-            for (var page in response.query.pages) {
-                for (var info in response.query.pages[page].imageinfo) {
-                    console.log(response.query.pages[page].imageinfo[info].url);
-                }
+            var pages = response.query.pages;
+            for (var p in pages) {
+                var type = document.createElement("tr");
+                type.appendChild(document.createTextNode(pages[p].fullurl));
+                table.appendChild(type);
+                console.log(pages[p].fullurl);
             }
         })
         .catch(function (error) {
@@ -120,9 +151,63 @@ function imageAPI(search) {
         });
 }
 
+function linkshere(search, ideaNumber) {
+    function linksAPI(search, ideaNumber) {
+        var table = document.getElementById("resultsLinksBox");
+        var url = "https://en.wikipedia.org/w/api.php";
+
+        var params = {
+            action: "query",
+            titles: search,
+            prop: "linkshere",
+            format: "json",
+        };
+
+        url = url + "?origin=*";
+        Object.keys(params).forEach(function (key) {
+            url += "&" + key + "=" + params[key];
+        });
+
+        fetch(url)
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (response) {
+                var pages = response.query.pages;
+                var pageID = Object.keys(pages);
+                var links = pages[pageID].linkshere;
+                console.log(links);
+                for (var p in links) {
+                    var type = document.createElement("tr");
+                    type.appendChild(document.createTextNode(links[p].title));
+                    table.appendChild(type);
+                    //console.log(pages[p].linkshere);
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
+}
+
+//fades an item in, changes opacity to 1 and sets the z-index to 0
+function fadeItemIn(item) {
+    document.getElementById(item).style.animation = "fadeIn 1.5s"; //fade  in
+    document.getElementById(item).style.opacity = "1"; //keep displayed on
+    document.getElementById(item).style.zIndex = "0"; //move z-index
+    return;
+}
+
+//fades an item out, changes opacity to 0 and sets the z-index to -50
+function fadeItemOut(item) {
+    document.getElementById(item).style.animation = "fadeOut 1s"; //fade out
+    document.getElementById(item).style.opacity = "0"; //keep out
+    document.getElementById(item).style.zIndex = "-50"; //move z-index
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     goButton.addEventListener("click", goButtonClick);
     wikiURL.addEventListener("keyup", enterKeyCheck("wikiURL"));
     numberOfResults.addEventListener("keyup", enterKeyCheck("ideaSize"));
-    testButton.addEventListener("click", testButtonClick);
+    startOverButton.addEventListener("click", startOverButtonClick);
 });

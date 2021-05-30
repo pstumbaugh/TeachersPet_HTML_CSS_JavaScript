@@ -1,9 +1,6 @@
 var goButton = document.getElementById("goButton");
-var testButton = document.getElementById("testButton");
 var numberOfResults = document.getElementById("ideaSize");
 var wikiURL = document.getElementById("wikiURL");
-
-function testButtonClick() {}
 
 function goButtonClick() {
     var numberOfResultsValue = numberOfResults.value;
@@ -31,9 +28,9 @@ function goButtonClick() {
     }
 
     //check wiki URL validity
-    if (wikiURLValue == "" || wikiURLValue.includes("wikipedia.org") == false) {
+    if (wikiURLValue == "") {
         document.getElementById("wikiURLerror").textContent =
-            "Please enter a wikipedia URL";
+            "Please enter a keyword";
         wikiFlag = true;
         event.preventDefault();
     } else {
@@ -45,9 +42,16 @@ function goButtonClick() {
 
     //make sure no error flags set, if good continue on. (else do nothing)
     if (ideasFlag == false && wikiFlag == false) {
-        var url = "./results.html";
-        window.location.replace(url);
+        fadeItemOut("main");
         console.log("Go button clicked");
+        linkshere(wikiURLValue, numberOfResultsValue);
+        //imageAPI(wikiURLValue);
+
+        //wait for main page to fade out
+        var delayInMilliseconds1 = 1000;
+        setTimeout(function () {
+            fadeItemIn("results");
+        }, delayInMilliseconds1);
     }
     event.preventDefault();
 }
@@ -64,18 +68,66 @@ function enterKeyCheck(ID) {
     });
 }
 
-function imageAPI(search) {
+//-------------------RESULTS FUNCTIONS------------------------
+
+getResultsTitle(); //run the function when page loads
+function getResultsTitle() {
+    var resultsLinksTitle = [
+        "WOW! Now those are some neat results:",
+        "Ooooh, links!",
+        "Your students will love these topics:",
+        "Enjoy these fabulous results!",
+        "You get a link, and you get link! Everone gets a link!",
+    ];
+    var resultsLinksVar = document.getElementById("resultsLinksTitle");
+
+    resultsLinksVar.textContent =
+        resultsLinksTitle[Math.floor(Math.random() * resultsLinksTitle.length)];
+}
+
+getWordsTitle(); //run the function when page loads
+function getWordsTitle() {
+    var resultsLinksTitle = [
+        "So ... many ... words!",
+        "Enjoy this curated list of words!",
+        "So many words, so little time...",
+        "Word: a single distinct meaninful element.",
+        "Those are some popular words!",
+    ];
+    var resultsLinksVar = document.getElementById("resultsWordsTitle");
+
+    resultsLinksVar.textContent =
+        resultsLinksTitle[Math.floor(Math.random() * resultsLinksTitle.length)];
+}
+
+var startOverButton = document.getElementById("startOverButton");
+
+function startOverButtonClick() {
+    fadeItemOut("results");
+    var delayInMilliseconds1 = 1000;
+    setTimeout(function () {
+        fadeItemIn("main");
+    }, delayInMilliseconds1);
+    console.log("Start Over button clicked");
+}
+
+//gets all links on a specific page
+function linksAPI(search, ideaNumber) {
+    var table = document.getElementById("resultsLinksBox");
     var url = "https://en.wikipedia.org/w/api.php";
+
     var params = {
+        inprop: "url",
         action: "query",
-        prop: "imageinfo",
-        generator: "images",
-        iiprop: "url",
-        titles: search,
         format: "json",
+        titles: search,
+        prop: "info",
+        pllimit: "max",
+        gpllimit: ideaNumber,
+        generator: "links",
     };
 
-    url = url + "?origin=*&gimlimit=max";
+    url = url + "?origin=*";
     Object.keys(params).forEach(function (key) {
         url += "&" + key + "=" + params[key];
     });
@@ -85,10 +137,20 @@ function imageAPI(search) {
             return response.json();
         })
         .then(function (response) {
-            for (var page in response.query.pages) {
-                for (var info in response.query.pages[page].imageinfo) {
-                    console.log(response.query.pages[page].imageinfo[info].url);
-                }
+            var pages = response.query.pages;
+            for (var p in pages) {
+                var type = document.createElement("a");
+                var child = document.createTextNode(pages[p].title);
+
+                type.appendChild(child);
+                type.title = pages[p].title;
+                type.href = pages[p].fullurl;
+                type.target = "_blank";
+                table.appendChild(type);
+
+                linebreak = document.createElement("br");
+                table.appendChild(linebreak);
+                //console.log(pages[p]);
             }
         })
         .catch(function (error) {
@@ -96,9 +158,77 @@ function imageAPI(search) {
         });
 }
 
+//gets common links shared between search term and links on that page
+function linkshere(search, ideaNumber) {
+    var table = document.getElementById("resultsLinksBox");
+    var url = "https://en.wikipedia.org/w/api.php";
+
+    var params = {
+        action: "query",
+        titles: search,
+        prop: "linkshere",
+        format: "json",
+    };
+
+    url = url + "?origin=*";
+    Object.keys(params).forEach(function (key) {
+        url += "&" + key + "=" + params[key];
+    });
+
+    fetch(url)
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (response) {
+            var pages = response.query.pages;
+            var pageID = Object.keys(pages);
+            var links = pages[pageID].linkshere;
+            for (var p in links) {
+                //create a new "a" and add the title and link
+                var type = document.createElement("a");
+                var child = document.createTextNode(links[p].title);
+                type.appendChild(child);
+                type.title = links[p].title;
+                console.log(type.title);
+                var removedSpaces = removeSpaces(links[p].title);
+                type.href = "https://en.wikipedia.org/wiki/" + removedSpaces;
+                type.onclick = "location.href=" + type.href;
+                type.target = "_blank";
+                table.appendChild(type);
+
+                //replace spaces with underscore
+                linebreak = document.createElement("br");
+                table.appendChild(linebreak);
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+}
+
+//fades an item in, changes opacity to 1 and sets the z-index to 0
+function fadeItemIn(item) {
+    document.getElementById(item).style.animation = "fadeIn 1.5s"; //fade  in
+    document.getElementById(item).style.opacity = "1"; //keep displayed on
+    document.getElementById(item).style.zIndex = "0"; //move z-index
+    return;
+}
+
+//fades an item out, changes opacity to 0 and sets the z-index to -50
+function fadeItemOut(item) {
+    document.getElementById(item).style.animation = "fadeOut 1s"; //fade out
+    document.getElementById(item).style.opacity = "0"; //keep out
+    document.getElementById(item).style.zIndex = "-50"; //move z-index
+}
+
+function removeSpaces(originalText) {
+    removedSpacesText = originalText.split(" ").join("_");
+    return removedSpacesText;
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     goButton.addEventListener("click", goButtonClick);
     wikiURL.addEventListener("keyup", enterKeyCheck("wikiURL"));
     numberOfResults.addEventListener("keyup", enterKeyCheck("ideaSize"));
-    testButton.addEventListener("click", testButtonClick);
+    startOverButton.addEventListener("click", startOverButtonClick);
 });

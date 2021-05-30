@@ -15,6 +15,7 @@
     </div>
     <br>
 
+<div id="main">
     <!-- main section -->
     <div class="sectionTitle">How many ideas would you like?</div>
     <form>
@@ -25,20 +26,43 @@
         <br><br>
     </form>
 
-    <div class="sectionTitle">Enter Wikipedia URL:</div>
+    <div class="sectionTitle">Enter keyword to search:</div>
     <form>
         <input type="text" class="mainPageFormWikiURL" id="wikiURL" name="wikiURL"
-            placeholder="https://en.wikipedia.org/wiki/Peanut_butter"></input>
+            placeholder="Peanut Butter"></input>
         <br>
         <span class="errorText" id="wikiURLerror"></span>
-        <br><br>
+        <br>
     </form>
 
     <!-- buttons on bottom -->
     <button id="goButton"></button>
     <br>
     <br>
-    <button id="testButton">TEST BUTTON</button>
+</div>
+
+<div id="results">
+    <!-- main section -->
+    <table id="resultsContainer">
+        <th id="resultsLeft">
+            <span class="resultsTitle" id="resultsLinksTitle" onload="getResultsTitle()"></span>
+            <div class="resultsTableBox" id="resultsLinksBox">
+            </div>
+            <br>
+            <div class="resultsTitle" id="resultsWordsTitle" onload="getWordsTitle()"></div>
+            <div class="resultsTableBox" id="resultsWordsBox">top words results here (scrollable box)</div>
+        </th>
+        <th id="resultsRight">
+            <div>Picture of item here</div>
+        </th>
+    </table>
+
+    <!-- buttons on bottom -->
+    <div id='startOverContainer'>
+        <button id="startOverButton"></button>
+    </div>
+    <!-- not yet implementing: <div id=mainPageBox></div> -->
+</div> 
 
     <!-- not yet implementing: <div id=mainPageBox></div> -->
 
