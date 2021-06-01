@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Teacher's Pet</title>
+    <link rel="stylesheet" type="text/css" href="./styles.css">
+</head>
+
+<body id="body">
+
+    <!-- Title section -->
+    <!-- OLD: <div id="pageTitle">Teacher's Pet</div> --->
+    <img id="pageTitle" src="./images/title.png">
+    </div>
+    <br>
+
+    <!-- main section -->
+    <table id="resultsContainer">
+        <th id="resultsLeft">
+            <span class="resultsTitle" id="resultsLinksTitle" onload="getResultsTitle()"></span>
+            <div class="resultsTableBox" id="resultsLinksBox">links results here (scrollable box)</div>
+            <br>
+            <div class="resultsTitle" id="resultsWordsTitle" onload="getWordsTitle()"></div>
+            <div class="resultsTableBox" id="resultsWordsBox">top words results here (scrollable box)</div>
+        </th>
+        <th id="resultsRight">
+            <div>Picture of item here</div>
+        </th>
+    </table>
+
+    <!-- buttons on bottom -->
+    <div id='startOverContainer'>
+        <button id="startOverButton"></button>
+    </div>
+    <!-- not yet implementing: <div id=mainPageBox></div> -->
+
+
+    <!-- Javascript files in use: -->
+    <script type="text/javascript " src="./results.js"></script>
+</body>
+
+</html>

@@ -72,7 +72,7 @@ function goButtonClick() {
                 alert(
                     "We're experiencing issues right now, please try again later."
                 );
-                fadeItemIn("main");
+                startOverButtonClick();
                 console.log("ERROR in get request");
             })
             .done(function (data) {
@@ -172,6 +172,8 @@ function startOverButtonClick() {
         //clear out results boxes:
         document.getElementById("resultsLinksBox").innerHTML = "";
         document.getElementById("resultsWordsBox").innerHTML = "";
+        document.getElementById("resultsPictureError").style.opacity = 1;
+        document.getElementById("resultsPicture").src = "";
     }, delayInMilliseconds1);
     console.log("Start Over button clicked");
 }
@@ -215,7 +217,6 @@ function linksAPI(search, ideaNumber) {
 
                 linebreak = document.createElement("br");
                 table.appendChild(linebreak);
-                //console.log(pages[p]);
             }
         })
         .catch(function (error) {
@@ -249,7 +250,7 @@ function linkshere(search, ideaNumber, redirectOption) {
             return response.json();
         })
         .then(function (response) {
-            console.log(response);
+            //console.log(response);
             var pages = response.query.pages;
             var pageID = Object.keys(pages);
             var links = pages[pageID].linkshere;
@@ -259,7 +260,6 @@ function linkshere(search, ideaNumber, redirectOption) {
                 var child = document.createTextNode(links[p].title);
                 type.appendChild(child);
                 type.title = links[p].title;
-                console.log(type.title);
                 var removedSpaces = removeSpaces(links[p].title);
                 type.href = "https://en.wikipedia.org/wiki/" + removedSpaces;
                 type.onclick = "location.href=" + type.href;
@@ -302,11 +302,10 @@ function imageAPI(search, res) {
     var url = "https://en.wikipedia.org/w/api.php";
     var params = {
         action: "query",
-        prop: "imageinfo",
-        generator: "images",
-        iiprop: "url",
-        titles: search,
+        prop: "pageimages",
         format: "json",
+        titles: search,
+        piprop: "name|original",
     };
 
     url = url + "?origin=*&gimlimit=max";
@@ -319,10 +318,13 @@ function imageAPI(search, res) {
             return response.json();
         })
         .then(function (response) {
+            //console.log("RESPONSE: ", response);
             for (var page in response.query.pages) {
-                for (var info in response.query.pages[page].imageinfo) {
-                    console.log(response.query.pages[page].imageinfo[info].url);
-                }
+                var wikiImage = document.getElementById("resultsPicture");
+                wikiImage.src = response.query.pages[page].original.source;
+                document.getElementById(
+                    "resultsPictureError"
+                ).style.opacity = 0;
             }
         })
         .catch(function (error) {
