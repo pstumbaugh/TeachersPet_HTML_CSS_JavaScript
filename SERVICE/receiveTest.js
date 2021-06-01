@@ -4,14 +4,9 @@ const request = require("request");
 
 var credentials = require("./credentials.js");
 
-var count = 0;
-while (count < 1) {
-    getThumbnail();
-    count = 1;
-}
+getThumbnail();
 
 function getThumbnail() {
-    var closeChannel = false;
     amqp.connect(credentials.AMPQserver, function (error0, connection) {
         if (error0) {
             throw error0;
@@ -21,13 +16,10 @@ function getThumbnail() {
                 throw error1;
             }
             var exchange = "thumbnailTransformer";
-            //var exchange = "thumbnailTransformer1";
 
             channel.assertExchange(exchange, "fanout", {
                 durable: false,
             });
-
-            channel.prefetch(1);
 
             channel.assertQueue(
                 "",
@@ -51,15 +43,13 @@ function getThumbnail() {
 
                     channel.consume(
                         q.queue,
-
                         function (msg) {
                             console.log(" [x] Received image");
                             fs.writeFileSync(
-                                "NewUrlThumbnail" + counter,
+                                "NewUrlThumbnail" + counter + ".jpg",
                                 msg.content
                             );
                             counter = counter + 1;
-                            connection.close();
                         },
                         {
                             noAck: true,

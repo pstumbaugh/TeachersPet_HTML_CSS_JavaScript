@@ -2,8 +2,6 @@
 var fs = require("fs");
 var sharp = require("sharp");
 var amqp = require("amqplib/callback_api");
-var https = require("https");
-const request = require("request");
 const download = require("image-downloader");
 
 var credentials = require("./credentials.js");
@@ -33,12 +31,9 @@ function makeThumbnail() {
             channel.consume(
                 queue,
                 function (msg) {
-                    //var secs = msg.content.toString().split(".").length - 1;
-
                     console.log(" [x] Received %s", msg.content.toString());
                     setTimeout(function () {
                         transformToThumbnail(msg);
-                        //console.log(" [x] Done");
                         channel.ack(msg);
                     }, 2000);
                 },
@@ -92,7 +87,6 @@ function sendThumbnailToExchange() {
                 throw error1;
             }
             var exchange = "thumbnailTransformer";
-            //var exchange = "thumbnailTransformer1";
 
             fs.readFile("./thumbnail.jpg", function (err, data) {
                 if (err) throw err; // Fail if the file can't be read.
@@ -116,7 +110,7 @@ function sendThumbnailToExchange() {
 
 //saves an image from a URL and sends it to queue
 function saveImageFromURL(url) {
-    sharp.cache(false); //clear our sharp if there are any other images already in the cache
+    sharp.cache(false); //clears sharp's cache
 
     const options = {
         url: url,
@@ -140,7 +134,7 @@ function saveImageFromURL(url) {
                         console.log(
                             " [-] URL - thumbnail created successfully!"
                         );
-                        sendThumbnailToExchange(); //send it to the exchange
+                        sendThumbnailToExchange();
                         stream.end();
                     });
                 })
@@ -160,7 +154,7 @@ function saveImageAcceptablePic(imageToProcess) {
         .then((data) => {
             fs.writeFileSync("thumbnail.jpg", data);
             console.log(" [-] Accp Image - thumbnail created successfully!");
-            sendThumbnailToExchange(); //send it to the queue
+            sendThumbnailToExchange();
         });
 }
 
@@ -172,10 +166,12 @@ function saveImageGeneric() {
         .then((data) => {
             fs.writeFileSync("thumbnail.jpg", data);
             console.log(" [-] GENERIC thumbnail created successfully!");
-            //send it to the queue
             sendThumbnailToExchange();
         });
 }
+
+/*
+This may be used it wanting to send it to a specific queue instead of the exchange
 
 //takes the saved local thumbnail image ("thumbnail.jpg") and sends it to the rabbitmq queue
 function sendThumbnailToQueue() {
@@ -208,3 +204,4 @@ function sendThumbnailToQueue() {
         });
     });
 }
+*/

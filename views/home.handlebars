@@ -9,6 +9,8 @@
 
 <body id="body">
 
+
+
     <!-- Title section -->
     <!-- OLD: <div id="pageTitle">Teacher's Pet</div> --->
     <img id="pageTitle" src="./images/title.png">
@@ -17,21 +19,24 @@
 
 <div id="main">
     <!-- main section -->
-    <div class="sectionTitle">How many ideas would you like?</div>
+    <div class="sectionTitle">How many ideas would you like? </div>
     <form>
         <input type="number" class="mainPageFormIdeaNumber" id="ideaSize" name="ideaSize" placeholder="25" min="1"
             step="1" pattern="[0-9]"></input>
         <br>
         <span class="errorText" id="ideaSizeError"></span>
-        <br><br>
+        <br>
+        <input type="checkbox" id="redirectOption" name="redirectOption">
+        <label id="redirectOption" for="redirectOption">Precision (more specific, but fewer results)</label><br>
+        <br>
     </form>
 
     <div class="sectionTitle">Enter keyword to search:</div>
     <form>
-        <input type="text" class="mainPageFormWikiURL" id="wikiURL" name="wikiURL"
+        <input type="text" class="mainPageFormWikiTerm" id="wikiTermEntry" name="wikiTermEntry"
             placeholder="Peanut Butter"></input>
         <br>
-        <span class="errorText" id="wikiURLerror"></span>
+        <span class="errorText" id="wikiTermEntryError"></span>
         <br>
     </form>
 
@@ -40,6 +45,9 @@
     <br>
     <br>
 </div>
+
+
+
 
 <div id="results">
     <!-- main section -->
@@ -50,10 +58,12 @@
             </div>
             <br>
             <div class="resultsTitle" id="resultsWordsTitle" onload="getWordsTitle()"></div>
-            <div class="resultsTableBox" id="resultsWordsBox">top words results here (scrollable box)</div>
+            <div class="resultsTableBox" id="resultsWordsBox"></div>
         </th>
         <th id="resultsRight">
-            <div>Picture of item here</div>
+            <img id="resultsPicture"></img>
+            <span id="resultsPictureError">Sorry, an image is not currently available.</span>
+
         </th>
     </table>
 
@@ -64,8 +74,9 @@
     <!-- not yet implementing: <div id=mainPageBox></div> -->
 </div> 
 
-    <!-- not yet implementing: <div id=mainPageBox></div> -->
 
+
+<div id="loader"></div>
 
     <!-- Javascript files in use: -->
     <script type="text/javascript " src="index.js"></script>

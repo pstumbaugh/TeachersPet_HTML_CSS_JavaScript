@@ -42,6 +42,32 @@
     }
 }
 
+#loader {
+    border: 8px solid #666; /* Light grey */
+    border-top: 8px solid #65e46a;
+    border-right: 8px solid #666;
+    border-bottom: 8px solid #65e46a;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 2s linear infinite;
+    position: relative;
+    margin-top: -350px;
+    margin-left: auto;
+    margin-right: auto;
+    z-index: -1;
+    opacity: 0;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
 #body {
     background-color: white;
     text-align: center;
@@ -116,6 +142,14 @@ a {
     font-size: 40px;
 }
 
+label {
+    color: #1e411f;
+    text-shadow: -0.5px 1px 0 #65e46a;
+    font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+        "Lucida Sans", Arial, sans-serif;
+    font-size: 15px;
+}
+
 .mainPageFormIdeaNumber {
     width: 100px;
     padding: 12px 20px;
@@ -126,7 +160,7 @@ a {
     box-sizing: border-box;
 }
 
-.mainPageFormWikiURL {
+.mainPageFormWikiTerm {
     width: 500px;
     padding: 12px 20px;
     margin: 8px 0;
@@ -189,6 +223,7 @@ a {
 
 #resultsRight {
     width: 30%;
+    height: 10%;
     background-color: rgb(208, 252, 208);
     margin-left: 65%;
     margin-right: auto;
@@ -197,6 +232,14 @@ a {
     padding-top: 10px;
     border-color: grey;
     border-style: solid;
+}
+
+#resultsPicture {
+    width: 300px;
+    height: 300px;
+    object-fit: contain;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .resultsTableBox {
